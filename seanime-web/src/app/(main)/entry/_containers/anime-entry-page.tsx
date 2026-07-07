@@ -14,6 +14,7 @@ import {
 } from "@/app/(main)/_features/plugin/plugin-entry-episode-tabs"
 import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
+import { usePlayNext } from "@/app/(main)/_atoms/playback.atoms"
 
 import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -120,6 +121,7 @@ export function AnimeEntryPage() {
     const vc_fullscreen = useAtomValue(vc_isFullscreen)
 
     const { currentView, setView } = useAnimeEntryPageView()
+    const { playNext } = usePlayNext()
     const switchedView = React.useRef(false)
 
     const pluginEpisodeTabs = usePluginAnimeEntryEpisodeTabs({
@@ -171,7 +173,18 @@ export function AnimeEntryPage() {
 
             if (switchedView.current) return
 
-            const automaticView = getAutomaticAnimeEntryView(animeEntry, serverStatus)
+            let automaticView = getAutomaticAnimeEntryView(animeEntry, serverStatus)
+
+            if (playNext === Number(mediaId) && !animeEntry.nextEpisode) {
+                if (serverStatus?.torrentstreamSettings?.enabled) {
+                    automaticView = "torrentstream"
+                } else if (serverStatus?.debridSettings?.enabled) {
+                    automaticView = "debridstream"
+                } else if (serverStatus?.settings?.library?.enableOnlinestream) {
+                    automaticView = "onlinestream"
+                }
+            }
+
             let nextView = ""
 
             if (tab) {
@@ -208,7 +221,7 @@ export function AnimeEntryPage() {
 
         },
         [animeEntry, animeEntryLoading, mediaId, serverStatus, tab, registeredEpisodeTabExtensions, registeredEpisodeTabExtensionsFetched,
-            registeredEpisodeTabExtensionIds])
+            registeredEpisodeTabExtensionIds, playNext])
 
     React.useEffect(() => {
             if (!currentView.startsWith("episodeTab:")) return

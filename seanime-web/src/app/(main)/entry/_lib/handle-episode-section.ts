@@ -15,7 +15,7 @@ export function useHandleEpisodeSection(props: { entry: Anime_Entry }) {
                 playMediaFile({ path: entry.nextEpisode.localFile?.path ?? "", mediaId: entry.mediaId, episode: entry.nextEpisode })
             }
         },
-    }, !!entry.nextEpisode)
+    }, true)
 
     const mainEpisodes = React.useMemo(() => {
         return entry.episodes?.filter(ep => ep.type === "main") ?? []

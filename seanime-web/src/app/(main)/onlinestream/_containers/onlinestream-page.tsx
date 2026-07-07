@@ -27,6 +27,7 @@ import { vc_useLibassRendererAtom, VideoCore_VideoPlaybackInfo, VideoCore_VideoS
 import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_containers/onlinestream-manual-matching"
 import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
+import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import {
     __onlinestream_audioTrackPreferenceByMediaAtom,
@@ -261,6 +262,12 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const progress = animeEntry?.listData?.progress ?? 0
 
     const [episodeViewMode, setEpisodeViewMode] = useAtom(__onlineStream_episodeViewModeAtom)
+
+    usePlayNextVideoOnMount({
+        onPlay: () => {
+            // State is consumed, nothing more to do since OnlinestreamPage already auto-plays the next episode
+        }
+    })
 
     const playerRef = React.useRef<HTMLVideoElement | null>(null)
 
